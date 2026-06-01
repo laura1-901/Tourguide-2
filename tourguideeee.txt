@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>YourTourGuide - Luzern Reiseplaner</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f7fa;
+color:#333;
+}
+
+header{
+background:#0056b3;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+header h1{
+margin-bottom:10px;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+.controls{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+margin-bottom:20px;
+}
+
+label{
+display:block;
+margin-top:10px;
+font-weight:bold;
+}
+
+select,button{
+width:100%;
+padding:10px;
+margin-top:5px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+background:#007bff;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#0056b3;
+}
+
+.day{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.activity{
+margin-top:15px;
+padding:15px;
+border-left:5px solid #007bff;
+background:#f9f9f9;
+}
+
+.activity img{
+width:100%;
+max-height:250px;
+object-fit:cover;
+border-radius:8px;
+margin-bottom:10px;
+}
+
+.time{
+font-weight:bold;
+color:#0056b3;
+}
+
+.transport{
+color:green;
+margin-top:5px;
+}
+
+.price{
+color:#c0392b;
+font-weight:bold;
+}
+
+footer{
+text-align:center;
+padding:20px;
+}
+
+@media(min-width:768px){
+.activity{
+display:grid;
+grid-template-columns:300px 1fr;
+gap:20px;
+}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>YourTourGuide</h1>
+<p>Plane deinen perfekten Aufenthalt in Luzern</p>
+</header>
+
+<div class="container">
+
+<div class="controls">
+
+<label>Anzahl Aufenthaltstage</label>
+
+<select id="days">
+<option value="1">1 Tag</option>
+<option value="2">2 Tage</option>
+<option value="3">3 Tage</option>
+<option value="4">4 Tage</option>
+<option value="5">5 Tage</option>
+</select>
+
+<label>Interesse</label>
+
+<select id="interest">
+<option>Kultur</option>
+<option>Natur</option>
+<option>Familie</option>
+</select>
+
+<button onclick="generatePlan()">
+Reiseplan erstellen
+</button>
+
+<button onclick="window.print()">
+Als PDF speichern
+</button>
+
+</div>
+
+<div id="result"></div>
+
+</div>
+
+<footer>
+© YourTourGuide Luzern
+</footer>
+
+<script>
+
+const plans = [
+
+[
+{
+time:"09:00",
+title:"Kapellbrücke",
+price:"Gratis",
+transport:"Zu Fuss",
+img:"https://images.unsplash.com/photo-1521295121783-8a321d551ad2",
+desc:"Das Wahrzeichen von Luzern."
+},
+{
+time:"10:30",
+title:"Altstadt",
+price:"Gratis",
+transport:"2 Minuten zu Fuss",
+img:"https://images.unsplash.com/photo-1516483638261-f4dbaf036963",
+desc:"Historische Plätze und Gassen."
+},
+{
+time:"13:00",
+title:"Löwendenkmal",
+price:"Gratis",
+transport:"Bus Nr. 1",
+img:"https://images.unsplash.com/photo-1512453979798-5ea266f8880c",
+desc:"Berühmtes Denkmal von Luzern."
+},
+{
+time:"15:00",
+title:"Gletschergarten",
+price:"CHF 22",
+transport:"2 Minuten zu Fuss",
+img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+desc:"Spannende Eiszeitgeschichte."
+}
+],
+
+[
+{
+time:"09:00",
+title:"Verkehrshaus",
+price:"CHF 35",
+transport:"Bus Nr. 6",
+img:"https://images.unsplash.com/photo-1489515217757-5fd1be406fef",
+desc:"Beliebtestes Museum der Schweiz."
+},
+{
+time:"13:00",
+title:"Lido Luzern",
+price:"CHF 8",
+transport:"5 Minuten zu Fuss",
+img:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+desc:"Entspannung am See."
+},
+{
+time:"16:00",
+title:"Schifffahrt",
+price:"CHF 30",
+transport:"Schiff",
+img:"https://images.unsplash.com/photo-1500375592092-40eb2168fd21",
+desc:"Rundfahrt auf dem Vierwaldstättersee."
+}
+],
+
+[
+{
+time:"08:30",
+title:"Pilatus",
+price:"CHF 78",
+transport:"Zahnradbahn",
+img:"https://images.unsplash.com/photo-1464822759023-fed622ff2c3b",
+desc:"Spektakuläre Aussicht."
+},
+{
+time:"12:30",
+title:"Fräkmüntegg",
+price:"Gratis",
+transport:"Seilbahn",
+img:"https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+desc:"Natur und Abenteuer."
+}
+],
+
+[
+{
+time:"08:00",
+title:"Rigi",
+price:"CHF 72",
+transport:"Bahn + Schiff",
+img:"https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+desc:"Königin der Berge."
+},
+{
+time:"15:00",
+title:"Vitznau",
+price:"Gratis",
+transport:"Zu Fuss",
+img:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
+desc:"Wunderschönes Dorf am See."
+}
+],
+
+[
+{
+time:"09:00",
+title:"Museggmauer",
+price:"Gratis",
+transport:"Zu Fuss",
+img:"https://images.unsplash.com/photo-1467269204594-9661b134dd2b",
+desc:"Historische Stadtbefestigung."
+},
+{
+time:"12:00",
+title:"Rosengart Collection",
+price:"CHF 20",
+transport:"Bus Nr. 2",
+img:"https://images.unsplash.com/photo-1504196606672-aef5c9cefc92",
+desc:"Picasso und Klee."
+},
+{
+time:"15:00",
+title:"Shopping Altstadt",
+price:"Individuell",
+transport:"Zu Fuss",
+img:"https://images.unsplash.com/photo-1483985988355-763728e1935b",
+desc:"Souvenirs und Schweizer Produkte."
+}
+]
+
+];
+
+function generatePlan(){
+
+const days = Number(
+document.getElementById("days").value
+);
+
+const result =
+document.getElementById("result");
+
+result.innerHTML="";
+
+for(let i=0;i<days;i++){
+
+const dayDiv =
+document.createElement("div");
+
+dayDiv.className="day";
+
+dayDiv.innerHTML=
+`<h2>Tag ${i+1}</h2>`;
+
+plans[i].forEach(item=>{
+
+dayDiv.innerHTML += `
+<div class="activity">
+
+<img src="${item.img}" alt="${item.title}">
+
+<div>
+
+<div class="time">
+${item.time}
+</div>
+
+<h3>${item.title}</h3>
+
+<p>${item.desc}</p>
+
+<p class="price">
+Preis: ${item.price}
+</p>
+
+<p class="transport">
+Anreise: ${item.transport}
+</p>
+
+</div>
+
+</div>
+`;
+
+});
+
+result.appendChild(dayDiv);
+
+}
+
+}
+
+generatePlan();
+
+</script>
+
+</body>
+</html>
